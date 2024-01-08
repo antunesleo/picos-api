@@ -1,0 +1,12 @@
+version: '3.1'
+
+services:
+  db:
+    image: postgres:16.1
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: picos
+      POSTGRES_USER: picos
+      POSTGRES_DB: picos
+    ports:
+      - 5432:5432
