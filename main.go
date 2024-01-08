@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/antunesleo/picos-api/core"
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -13,10 +13,16 @@ func main() {
 		log.Fatalf("Fail to load env vars, exiting %w", err)
 	}
 
-	gorm, err := core.OpenGormConnection(config.DBHost, config.DBUser, config.DBPassword, config.DBName, config.DBPort)
+	_, err = core.OpenGormConnection(config.DBHost, config.DBUser, config.DBPassword, config.DBName, config.DBPort)
 	if err != nil {
 		log.Fatalf("Fail to open db connection, exiting: %w", err)
 	}
-	fmt.Println("Connection opened: ", gorm.Config)
-	fmt.Println("Hello World")
+
+	r := gin.Default()
+	r.GET("/ping", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "pong",
+		})
+	})
+	r.Run()
 }
