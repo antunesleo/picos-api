@@ -1,6 +1,8 @@
 package core
 
-import "github.com/spf13/viper"
+import (
+	"github.com/spf13/viper"
+)
 
 type Config struct {
 	DBHost     string `mapstructure:"DB_HOST"`
@@ -8,6 +10,7 @@ type Config struct {
 	DBPassword string `mapstructure:"DB_PASSWORD"`
 	DBName     string `mapstructure:"DB_NAME"`
 	DBPort     int    `mapstructure:"DB_PORT"`
+	DBSSLMode  string `mapstructure:"DB_SSL_MODE"`
 }
 
 func LoadConfig() (*Config, error) {
@@ -17,7 +20,7 @@ func LoadConfig() (*Config, error) {
 	viper.BindEnv("DB_PASSWORD")
 	viper.BindEnv("DB_NAME")
 	viper.BindEnv("DB_PORT")
-	viper.AutomaticEnv()
+	viper.BindEnv("DB_SSL_MODE")
 	err := viper.Unmarshal(config)
 	return config, err
 }

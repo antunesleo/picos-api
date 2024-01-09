@@ -1,17 +1,16 @@
 package core
 
 import (
+	"fmt"
+
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
 
-func OpenGormConnection(host, user, password, db string, port int) (*gorm.DB, error) {
-	dsn := "host=localhost user=picos password=picos dbname=picos port=5432 sslmode=disable TimeZone=Asia/Shanghai"
-	return gorm.Open(postgres.Open(dsn), &gorm.Config{})
-}
-
-func OpenSQLXConnection(host, user, password, db string, port int) (*sqlx.DB, error) {
-	return sqlx.Connect("postgres", "host=localhost user=picos password=picos dbname=picos port=5432 sslmode=disable")
+func OpenSQLXConnection(host, user, password, db string, port int, sslmode string) (*sqlx.DB, error) {
+	dataSource := fmt.Sprintf(
+		"host=%s user=%s password=%s dbname=%s port=%d sslmode=%s", host, user, password, db, port, sslmode,
+	)
+	fmt.Println("dataSource", dataSource)
+	return sqlx.Connect("postgres", dataSource)
 }
