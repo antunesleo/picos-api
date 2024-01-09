@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/antunesleo/picos-api/core"
-	persistence "github.com/antunesleo/picos-api/spots/infrastructure"
+	"github.com/antunesleo/picos-api/spots/infrastructure/persistence"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -27,11 +27,19 @@ func main() {
 		log.Fatalf("Fail to open db connection, exiting: %w", err)
 	}
 
-	spotRepository := persistence.SQLXSpotRepository{DB: dbConnection}
-	spots, err := spotRepository.ListAll()
+	transactionManager := persistence.SQLXTransactionManager{dbConnection}
+	tx, err := transactionManager.Begin()
+	if err != nil {
+		log.Fatalf("Fail to open transaction, exiting: %w", err)
+	}
+	spotRepository := persistence.SQLXSpotRepository{}
+	spots, err := spotRepository.ListAll(tx)
 	if err != nil {
 		log.Fatalf("Failed to list spots, exiting: %w", err)
+		transactionManager.Rollback(tx)
 	}
+	transactionManager.Commit(tx)
+
 	for _, spot := range spots {
 		fmt.Println("spot name", spot.Name)
 	}
