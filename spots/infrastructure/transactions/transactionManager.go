@@ -1,4 +1,4 @@
-package persistence
+package transactions
 
 import (
 	"database/sql"
@@ -19,7 +19,7 @@ func (t *Transaction) GetSQLXTransaction() (*sql.Tx, error) {
 }
 
 type TransactionManager interface {
-	Begin() *Transaction
+	Begin() (*Transaction, error)
 	Commit(t *Transaction) error
 	Rollback(t *Transaction) error
 }

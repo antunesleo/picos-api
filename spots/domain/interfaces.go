@@ -1,5 +1,9 @@
 package domain
 
+import (
+	"github.com/antunesleo/picos-api/spots/infrastructure/transactions"
+)
+
 type SpotRepository interface {
-	ListAll() []Spot
+	ListAll(tx *transactions.Transaction) ([]Spot, error)
 }

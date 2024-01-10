@@ -5,8 +5,9 @@ import (
 	"log"
 
 	"github.com/antunesleo/picos-api/core"
-	"github.com/antunesleo/picos-api/spots/infrastructure/persistence"
-
+	"github.com/antunesleo/picos-api/spots/application"
+	posts "github.com/antunesleo/picos-api/spots/infrastructure/repositories"
+	"github.com/antunesleo/picos-api/spots/infrastructure/transactions"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -26,26 +27,22 @@ func main() {
 	if err != nil {
 		log.Fatalf("Fail to open db connection, exiting: %w", err)
 	}
-
-	transactionManager := persistence.SQLXTransactionManager{dbConnection}
-	tx, err := transactionManager.Begin()
-	if err != nil {
-		log.Fatalf("Fail to open transaction, exiting: %w", err)
-	}
-	spotRepository := persistence.SQLXSpotRepository{}
-	spots, err := spotRepository.ListAll(tx)
-	if err != nil {
-		log.Fatalf("Failed to list spots, exiting: %w", err)
-		transactionManager.Rollback(tx)
-	}
-	transactionManager.Commit(tx)
-
-	for _, spot := range spots {
-		fmt.Println("spot name", spot.Name)
-	}
+	transactionManager := transactions.SQLXTransactionManager{dbConnection}
+	spotRepository := posts.SQLXSpotRepository{}
+	spotsUserCases := application.SpotsUseCasesImpl{TransactionManager: &transactionManager, SpotRepository: &spotRepository}
 
 	r := gin.Default()
 	r.GET("/ping", func(c *gin.Context) {
+		spots, err := spotsUserCases.List()
+		if err != nil {
+			c.JSON(500, gin.H{
+				"error": "can't list spots",
+			})
+			return
+		}
+		for _, spot := range spots {
+			fmt.Println("spot", spot)
+		}
 		c.JSON(200, gin.H{
 			"message": "pong",
 		})

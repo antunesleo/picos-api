@@ -1,15 +1,13 @@
-package persistence
+package posts
 
 import (
 	"github.com/antunesleo/picos-api/spots/domain"
+	"github.com/antunesleo/picos-api/spots/infrastructure/transactions"
 )
 
-// Option 1: Transaction Service Layer
-// Option 2: Transaction Handler
-// Encapsula acesso a dados
 type SQLXSpotRepository struct{}
 
-func (r *SQLXSpotRepository) ListAll(tx *Transaction) ([]domain.Spot, error) {
+func (r *SQLXSpotRepository) ListAll(tx *transactions.Transaction) ([]domain.Spot, error) {
 	SQLXTx, err := tx.GetSQLXTransaction()
 	if err != nil {
 		return nil, err
