@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/antunesleo/picos-api/core"
@@ -11,6 +10,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
+
+type SpotResponse struct {
+	Name string `json:"name"`
+}
 
 func main() {
 	err := godotenv.Load()
@@ -32,7 +35,7 @@ func main() {
 	spotsUserCases := application.SpotsUseCasesImpl{TransactionManager: &transactionManager, SpotRepository: &spotRepository}
 
 	r := gin.Default()
-	r.GET("/ping", func(c *gin.Context) {
+	r.GET("/spots", func(c *gin.Context) {
 		spots, err := spotsUserCases.List()
 		if err != nil {
 			c.JSON(500, gin.H{
@@ -40,12 +43,12 @@ func main() {
 			})
 			return
 		}
+		spotsResponses := []SpotResponse{}
 		for _, spot := range spots {
-			fmt.Println("spot", spot)
+			spotResponse := SpotResponse{Name: spot.Name}
+			spotsResponses = append(spotsResponses, spotResponse)
 		}
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
+		c.JSON(200, spotsResponses)
 	})
 	r.Run()
 }
